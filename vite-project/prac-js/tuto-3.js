@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { FontLoader } from 'three/examples/jsm/Addons.js';
 
 function main() {
   const canvas = document.querySelector('#c');
@@ -68,7 +69,41 @@ function main() {
   addSolidGeometry(-1, 1, new THREE.CylinderGeometry(6, 2, 6, 30));
   addSolidGeometry(0, 1, new THREE.DodecahedronGeometry(5));
   addSolidGeometry(1, 1, new THREE.DodecahedronGeometry(7, 2));
+  addSolidGeometry(2, 1, new THREE.TorusGeometry(5, 2, 8, 24));
 
+  addSolidGeometry(-2, 0, new THREE.TorusKnotGeometry(5, 1, 100, 16));
+
+  const loader = new FontLoader();
+
+  function loadFont(url) {
+    return new Promise((resolve, reject) => {
+      loader.load(url, resolve, undefined, reject);
+    })
+  }
+
+  async function doit() {
+    const font = await loadFont('https://threejsfundamentals.org/threejs/resources/threejs/fonts/helvetiker_regular.typeface.json');
+    const geometry = new TextGeometry('Hello', {
+      font: font,
+      size: 3.0,
+      height: 0.2,
+      curveSegments: 12,
+      bevelEnabled: true,
+      bevelThickness: 0.15,
+      bevelSize: 0.3,
+      bevelSegments: 5,
+    });
+    const mesh = new THREE.Mesh(geometry, createMaterial());
+    geometry.computeBoundingBox();
+    geometry.boundingBox.getCenter(mesh.position).multiplyScalar(-1);
+    
+    const parent = new THREE.Object3D();
+    parent.add(mesh);
+
+    addObject(-1, -1, parent);
+  }
+
+  doit();
 
   function render(time) {
     time *= 0.001;
